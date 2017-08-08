@@ -109,10 +109,6 @@ class EEStorage(Storage):
         return parse.urljoin(self.base_url, filepath_to_uri(name))
 
 
-
-
-
-
 class CustomFile(models.Model):
     file = models.FileField('custom', upload_to='user_media', storage=EEStorage())
 
