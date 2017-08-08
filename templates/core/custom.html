@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<head>
+    <h3>file upload</h3>
+    <a href="/del-files/">delete temp</a>
+
+
+
+{% load static staticfiles %}
+{% if obj_list %}
+    <table>
+        <thead>
+            <tr>
+                <th>file</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for obj in obj_list %}
+            <tr>
+                <td>{{ obj.file.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endif %}
+</head>
+{{ form.errors }}
+<div class="form-row">
+    <br>
+    <form method="post" enctype=multipart/form-data>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" value="upload">Сохранить</button>
+    </form>
+</div>

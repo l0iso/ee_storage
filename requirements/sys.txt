@@ -1,0 +1,4 @@
+Virtualenv:
+virtualenv -p python3.5
+
+psycopg2

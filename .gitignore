@@ -1,0 +1,7 @@
+.idea/
+*.pyc
+local_settings.py
+/static/*
+/media/*
+__pycache__
+**/migrations/**
