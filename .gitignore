@@ -3,5 +3,6 @@
 local_settings.py
 /static/*
 /media/*
-__pycache__
+*/__pycache__/
 **/migrations/**
+
