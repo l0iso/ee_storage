@@ -1,39 +1,32 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.core.urlresolvers import reverse
-from ee_storage import urls
-from . import models, forms
-# Create your views here.
+import os
+from django.http import QueryDict, HttpResponseForbidden
+from django.shortcuts import HttpResponse
+from django.core.files.storage import default_storage
+from django.utils._os import safe_join
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 
+def file_exist(path):
+    full_path = safe_join(settings.MEDIA_ROOT, path)
+    result = os.path.exists(full_path)
+    return result
+
+
+@csrf_exempt
 def upload(request):
-    obj_list = models.CustomFile.objects.all()
     if request.method == 'POST':
-        form = forms.CustomForm(request.POST, request.FILES)
-        if request.method == 'POST' and form.is_valid():
-            form.save()
-            return redirect(reverse('upload'))
-    else:
-        form = forms.CustomForm()
-    return render(request, 'core/custom.html', locals())
+        files = request.FILES
+        print(request.POST.get('file_name'))
+        if not file_exist(request.POST.get('file_name')):
+            default_storage.save(name=request.POST.get('file_name'), content=files.get('file'))
+            return HttpResponse()
+        else:
+            return HttpResponseForbidden('error')
+    if request.method == 'GET':
+        data = request.GET
+        if data.get('path'):
+            result = file_exist(data['path'])
+            return HttpResponse(result)
+    return HttpResponse()
 
-
-def del_objects(request):
-    objs = models.StandardFile.objects.all()
-    objs.delete()
-    return redirect(reverse('upload'))
-
-
-def std_upload(request):
-    obj_list = models.StandardFile.objects.all()
-    print(obj_list, 'kekfe')
-    if request.method == 'POST':
-        form = forms.StandardForm(request.POST, request.FILES)
-        print(form, form.is_valid(), request.FILES)
-        if form.is_valid():
-            print(form.cleaned_data)
-            form.save()
-            return redirect(reverse('std_upload'))
-    else:
-        form = forms.StandardForm()
-    return render(request, 'core/custom.html', locals())

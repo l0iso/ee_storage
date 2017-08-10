@@ -10,13 +10,15 @@
     <table>
         <thead>
             <tr>
+                <th>name</th>
                 <th>file</th>
             </tr>
         </thead>
         <tbody>
     {% for obj in obj_list %}
             <tr>
-                <td>{{ obj.file.name }}</td>
+                <td>{{ obj.name }}</td>
+                <td>{{ obj.file }}</td>
             </tr>
             {% endfor %}
         </tbody>

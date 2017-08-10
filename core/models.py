@@ -1,13 +1,13 @@
 from urllib import parse
 
+import os
+import errno
 from django.db import models
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 from django.utils._os import safe_join, abspathu
 from django.core.files import locks, File
-import os
 from django.core.files.move import file_move_safe
-import errno
 from django.conf import settings
 from django.utils.encoding import filepath_to_uri
 
@@ -109,16 +109,15 @@ class EEStorage(Storage):
         return parse.urljoin(self.base_url, filepath_to_uri(name))
 
 
-class CustomFile(models.Model):
-    file = models.FileField('custom', upload_to='user_media', storage=EEStorage())
+class AbstractProfile(models.Model):
 
-    def __str__(self):
-        return self.file.name
+    def upload_dir(self, instance):
+        try:
+            return '{dir}/{file}'.format(dir=self.name, file=instance)
+        except AttributeError:
+            return 'no_name/{file}'.format(file=instance)
 
+    file = models.ImageField('profile image', upload_to=upload_dir)
 
-class Second(models.Model):
-    file = models.FileField('new', upload_to='new_dict')
-
-
-class StandardFile(models.Model):
-    file = models.FileField('standard')
+    class Meta:
+        abstract = True

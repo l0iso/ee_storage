@@ -39,7 +39,18 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # project apps
     'core',
+
+    # other]
+    'rest_framework',
 )
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAdminUser',
+    ],
+    'PAGE_SIZE': 10
+}
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -107,11 +118,18 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-DEFAULT_FILE_STORAGE = 'core.models.EEStorage'
+# DEFAULT_FILE_STORAGE = 'core.models.EEStorage'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
+# EE_STORAGES_LIST = {
+#     'storage1': {
+#         'upload_url': 'http://127.0.0.1:8000/upload/',
+#     },
+# }
+
 FILE_UPLOAD_PERMISSIONS = None
+DATA_UPLOAD_MAX_MEMORY_SIZE = 262144000000
 
 try:
     from .local_settings import *
