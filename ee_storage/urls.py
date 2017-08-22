@@ -10,6 +10,7 @@ router = routers.DefaultRouter()
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^upload/$', views.upload, name='upload'),
+    url(r'^download/$', views.download, name='download'),
 
 ]
 
