@@ -1,5 +1,5 @@
 import os
-from django.http import QueryDict, HttpResponseForbidden
+from django.http import QueryDict, HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import HttpResponse
 from django.core.files.storage import default_storage
 from django.utils._os import safe_join
@@ -18,11 +18,18 @@ def file_exist(path):
 def upload(request):
     if request.method == 'POST':
         files = request.FILES
-        if not file_exist(request.POST.get('file_name')) and request.POST.get('action') == 'create':
-            result = default_storage.save(name=request.POST.get('file_name'), content=files.get('file'))
-            return HttpResponse(result)
+        name = request.POST.get('file_name')
+        print(name)
+        if not file_exist(name):
+            if request.POST.get('action') == 'create':
+                result = default_storage.save(name=request.POST.get('file_name'), content=files.get('file'))
+                return HttpResponse(result)
+            else:
+                return HttpResponseForbidden('error')
         else:
-            return HttpResponseForbidden('error')
+            return HttpResponseForbidden('file exists')
+
+
     if request.method == 'GET':
         data = request.GET
         if request.GET.get('action') == 'exists':
@@ -30,17 +37,16 @@ def upload(request):
                 result = default_storage.exists(data['name'])
                 return HttpResponse(result)
         elif request.GET.get('action') == 'delete':
-            result = default_storage.delete(name=data['name'])
-            return HttpResponse(result)
+            if default_storage.exists(data['name']):
+                default_storage.delete(name=data['name'])
+            else:
+                return HttpResponseNotFound('file not found')
         elif request.GET.get('action') == 'path':
-            result = default_storage.path(name=data['name'])
-            return HttpResponse(result)
-        # elif request.GET.get('action') == 'download':
-        #     response = HttpResponse(content_type='application/force-download')
-        #     response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(data['name'])
-        #     response['X-Sendfile'] = open(default_storage.path(name=data['name']), 'rb')
-        #     print(response['X-Sendfile'])
-        #     return response
+            if default_storage.exists(data['name']):
+                result = default_storage.path(name=data['name'])
+                return HttpResponse(result)
+            else:
+                HttpResponseNotFound('file not found')
         else:
             return HttpResponseForbidden('no actions')
 
@@ -52,13 +58,15 @@ def download(request):
     if request.method == 'GET':
         data = request.GET
         name = data.get('name')
-        print(name)
         if default_storage.exists(name):
-            response = HttpResponse(smart_str(default_storage.path(data['name'])),
+            response = HttpResponse(default_storage.open(data['name']),
                                     content_type='application/force-download')
             response['Content-Disposition'] = 'attachment; filename=%s' % data['name'].split('/')[-1]
             # response['X-Sendfile'] = default_storage.path(name=data['name'])
-            print(response.content)
+            # print(response.content)
+            # for m in dir(response):
+            #     print('method:', m)
+            #     print('-----', getattr(response, m))
             return response
         else:
             return HttpResponseForbidden('file no exists')
