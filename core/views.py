@@ -29,7 +29,6 @@ def upload(request):
         else:
             return HttpResponseForbidden('file exists')
 
-
     if request.method == 'GET':
         data = request.GET
         if request.GET.get('action') == 'exists':
